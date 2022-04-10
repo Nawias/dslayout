@@ -36,7 +36,7 @@ function love.mousereleased(x, y, button, istouch, presses)
   dslayout:mousereleased(x, y, button, istouch, presses)
 end
 ```
-Check out the included demo `main.lua` to see it in practice.
+Check out the included demo `main.lua` to see it in practice. For the impatient, I compiled a [web version](https://nawias.github.io/dslayout/) (thanks to [LÖVE Web Builder](https://schellingb.github.io/LoveWebBuilder/)).
 
 ## Configuration
 

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>dslayout</title>
+	<style type="text/css">
+html, body
+{
+	background-color: #222222;
+	margin: 0;
+	height: 100%;
+	font-family: sans-serif;
+	font-size: 18px;
+	color: #f5f5f5;
+}
+canvas{
+	object-fit: cover;
+	width: 600px;
+}
+#wrapper
+{
+	margin: 0 0 -21px;
+	padding: 1px;
+	min-height: 100%;
+	border-bottom: 21px solid transparent;
+	box-sizing: border-box;
+}
+#title
+{
+	background-color: #grey;
+	margin: 9px;
+	padding: .8em;
+	border: 3px solid #dddddd;
+	border-radius: 10px;
+	box-shadow: 3px 3px 0 0 rgba(0,0,0,0.3);
+	text-align: center;
+	color: #f5f5f5;
+}
+#main
+{
+	background-color: #grey;
+	margin: 9px;
+	padding: 15px 0;
+	border: 3px solid #dddddd;
+	border-radius: 10px;
+	box-shadow: 3px 3px 0 0 rgba(0,0,0,0.3);
+}
+#main a { color: #526ffc; }
+#main a:hover, #main a:active { color: #f2f2f2; background: #ea316e; }
+#footer
+{
+	padding-top: 3px;
+	height: 17px;
+	border-top: 1px dashed #77A;
+	color: #dddddd;
+	font-size: 9pt;
+	text-align: center;
+	overflow-y: auto;
+}
+#footer a { color: #77A; }
+#footer a:hover, #footera:active { color: #ea316e; }
+@media (max-width: 850px)
+{
+	#wrapper { font-size: 80%; }
+	#title { padding: .2em; }
+}
+	</style>
+</head>
+<body>
+<div id="wrapper">
+	<h1 id="title">dslayout</h1>
+	<div id="main">
+		<center style="margin-bottom:10px">Simulate Nintendo 3DS Screens on the desktop. For love2d.</center>
+		<center><canvas id="canvas" width="400" height="480" style="max-width:100%;background:#000;vertical-align:middle"></canvas></center>
+	</div>
+</div>
+<div id="footer">&copy; Nawias &middot; Made using the <a href="https://love2d.org/" target="_blank">LÖVE Framework</a> (<a href="https://bitbucket.org/rude/love/raw/default/license.txt" target="_blank">License</a>) &middot; Packaged using <a href="https://schellingb.github.io/LoveWebBuilder/" target="_blank">LÖVE Web Builder</a></div>
+<script type="text/javascript">(function(){
+var TXT =
+{
+	PLAYBTN: 'Click here to launch the game',
+	LOAD:    'Downloading Game',
+	PARSE:   'Preparing Game',
+	EXECUTE: 'Starting Game',
+	DLERROR: 'Error while downloading game data.\nCheck your internet connection.',
+	NOWEBGL: 'Your browser or graphics card does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br>Find out how to get it <a href="http://get.webgl.org/">here</a>.',
+};
+var canvas = document.getElementById('canvas'), ctx;
+var Msg = function(m)
+{
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = '#888';
+	for (var i = 0, a = m.split('\n'), n = a.length; i != n; i++)
+		ctx.fillText(a[i], canvas.width/2, canvas.height/2-(n-1)*20+10+i*40);
+};
+var Fail = function(m)
+{
+	canvas.outerHTML = '<div style="max-width:90%;width:'+canvas.clientWidth+'px;height:'+canvas.clientHeight+'px;background:#000;display:table-cell;vertical-align:middle"><div style="background-color:#FFF;color:#000;padding:1.5em;max-width:640px;width:80%;margin:auto;text-align:center">'+TXT.NOWEBGL+(m?'<br><br>'+m:'')+'</div></div>';
+};
+var DoExecute = function()
+{
+	Msg(TXT.EXECUTE);
+	Module.canvas = canvas.cloneNode(false);
+	Module.canvas.oncontextmenu = function(e) { e.preventDefault() };
+	Module.setWindowTitle = function(title) { };
+	Module.postRun = function()
+	{
+		if (!Module.noExitRuntime) { Fail(); return; }
+		canvas.parentNode.replaceChild(Module.canvas, canvas);
+		Txt = Msg = ctx = canvas = null;
+		Module.canvas.focus();
+	};
+	setTimeout(function() { Module.run(['/l']); }, 50);
+};
+var DoLoad = function()
+{
+	Msg(TXT.LOAD);
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', 'dslayout-demo.js');
+	xhr.onprogress = function(e)
+	{
+		if (!e.lengthComputable || ctx.pCnt++ < 5) return;
+		var x = canvas.width/2-150, y = canvas.height*.6, w = Math.min(e.loaded/e.total,1)*300, g = ctx.createLinearGradient(x,0,x+w,0);
+		g.addColorStop(0,'#72d3ff');g.addColorStop(1,'#a2d4ea');
+		ctx.fillStyle = '#1497ce'; ctx.fillRect(x-2,y-2,304,28);
+		ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x  ,y  ,300,24);
+		ctx.fillStyle = g;         ctx.fillRect(x  ,y  ,w,  24);
+	};
+	xhr.onerror = xhr.onabort = function() { Msg(TXT.DLERROR); canvas.disabled = false; };
+	xhr.onload = function()
+	{
+		if (xhr.status != 200) { Msg(TXT.DLERROR + '<br>Status: ' + xhr.statusText ); canvas.disabled = false; return; }
+		Msg(TXT.PARSE);
+		setTimeout(function()
+		{
+			window.onerror = function(e,u,l) { Fail(e+'<br>('+u+':'+l+')'); };
+			Module = { TOTAL_MEMORY: 1024*1024*24, TOTAL_STACK: 1024*1024*2, currentScriptUrl: '-', preInit: DoExecute };
+			var s = document.createElement('script'), d = document.documentElement;
+			s.textContent = xhr.response;
+			d.appendChild(s);
+			d.removeChild(s);
+			xhr = xhr.response = s = s.textContent = null;
+		},50);
+	};
+	xhr.send();
+}
+var DoSetup = function()
+{
+	canvas.onclick = function()
+	{
+		if (canvas.disabled) return;
+		canvas.disabled = true;
+		canvas.scrollIntoView();
+		ctx.pCnt = 0;
+		DoLoad();
+	};
+	ctx.fillStyle = '#888';
+	ctx.fillRect(canvas.width/2-254, canvas.height/2-104, 508, 208);
+	ctx.fillStyle = '#333';
+	ctx.fillRect(canvas.width/2-250, canvas.height/2-100, 500, 200);
+	ctx.fillStyle = '#888';
+	ctx.fillText(TXT.PLAYBTN, canvas.width/2, canvas.height/2+10);
+};
+canvas.oncontextmenu = function(e) { e.preventDefault() };
+ctx = canvas.getContext('2d');
+ctx.font = '30px sans-serif';
+ctx.textAlign = 'center';
+DoSetup();
+})()</script>
+</html>
+</body>

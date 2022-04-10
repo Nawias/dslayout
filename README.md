@@ -11,7 +11,6 @@ It also handles the mouse input to behave like touch on the 3DS. Mouse only work
 
 ## Usage
 Just put `dslayout.lua` wherever you need it, be it a library folder or your game folder. Next, `require` it and put handlers in place:
-Check out the included demo `main.lua` to see it in practice.
 ```lua
 function love.load()
     dslayout:init(--[[optional configuration]])
@@ -37,6 +36,7 @@ function love.mousereleased(x, y, button, istouch, presses)
   dslayout:mousereleased(x, y, button, istouch, presses)
 end
 ```
+Check out the included demo `main.lua` to see it in practice.
 
 ## Configuration
 

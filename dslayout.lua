@@ -6,6 +6,7 @@
 dslayout = {}
 dslayout.color = {r = 0.2, g = 0.2, b = 0.2, a = 1}
 dslayout.bottomScreen = nil
+dslayout.blendMode = love.graphics.getBlendMode()
 function dslayout:init(config)
     dslayout.bottomScreen = love.graphics.newCanvas(320,240)
     if(love.window.setTitle ~= nil) then
@@ -23,9 +24,16 @@ function dslayout:draw(screen, topScreen, bottomScreen)
         love.graphics.setCanvas(dslayout.bottomScreen)
         love.graphics.clear()
     end
-    if(screen == "bottom" or screen == "dbottom") then bottomScreen() end
+    if(screen == "bottom" or screen == "dbottom") then
+        if(screen == "dbottom") then
+            dslayout.blendMode = love.graphics.getBlendMode();
+            love.graphics.setBlendMode("alpha", "premultiplied")
+        end
+        bottomScreen() 
+    end
     if(screen == "dbottom") then
         local r,g,b,a = love.graphics.getColor()
+        love.graphics.setBlendMode(dslayout.blendMode)
         love.graphics.setCanvas()
         love.graphics.draw(dslayout.bottomScreen,40, 240);
         love.graphics.setColor(dslayout.color.r, dslayout.color.g, dslayout.color.b, dslayout.color.a)

@@ -5,7 +5,7 @@ Useful for development of games for the platform with [LÖVE Potion](https://git
 ![img.png](img.png)
 
 ## What does it do?
-First, it makes it easier to handle 2 screens. I used `love.graphics.translate` to offset the bottom screen drawing. You can draw each screen with its individual method.
+First, it makes it easier to handle 2 screens. I used `love.graphics.Canvas` to offset the bottom screen drawing. You can draw each screen with its individual method.
 
 It also handles the mouse input to behave like touch on the 3DS. Mouse only works on the bottom screen and only when it's pressed - so no pointer hover.
 

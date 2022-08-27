@@ -5,9 +5,12 @@
 ---
 dslayout = {}
 dslayout.color = {r = 0.2, g = 0.2, b = 0.2, a = 1}
+dslayout.bottomScreen = nil
+dslayout.blendMode = love.graphics.getBlendMode()
 function dslayout:init(config)
-    if(love.window.setTitle ~= nil and config.title ~= nil and type(config.title) == "string") then
-        love.window.setTitle(config.title)
+    dslayout.bottomScreen = love.graphics.newCanvas(320,240)
+    if(love.window.setTitle ~= nil) then
+        love.window.setTitle("3DS Demo")
     end
     love.window.setMode(400,480)
     if(config ~= nil and config.color ~= nil) then
@@ -16,19 +19,27 @@ function dslayout:init(config)
 end
 function dslayout:draw(screen, topScreen, bottomScreen)
     if(screen ~= "bottom") then topScreen() end
-    if screen == nil then
+    if(screen == nil) then
         screen = "dbottom"
-        love.graphics.push()
-        love.graphics.translate(40,240)
+        love.graphics.setCanvas(dslayout.bottomScreen)
+        love.graphics.clear()
     end
-    if(screen == "bottom" or screen == "dbottom") then bottomScreen() end
+    if(screen == "bottom" or screen == "dbottom") then
+        if(screen == "dbottom") then
+            dslayout.blendMode = love.graphics.getBlendMode();
+            love.graphics.setBlendMode("alpha", "premultiplied")
+        end
+        bottomScreen() 
+    end
     if(screen == "dbottom") then
         local r,g,b,a = love.graphics.getColor()
+        love.graphics.setBlendMode(dslayout.blendMode)
+        love.graphics.setCanvas()
+        love.graphics.draw(dslayout.bottomScreen,40, 240);
         love.graphics.setColor(dslayout.color.r, dslayout.color.g, dslayout.color.b, dslayout.color.a)
-        love.graphics.rectangle("fill",-40,0,40,240)
-        love.graphics.rectangle("fill",320,0,40,240)
+        love.graphics.rectangle("fill",0,240,40,240)
+        love.graphics.rectangle("fill",360,240,40,240)
         love.graphics.setColor(r,g,b,a)
-        love.graphics.pop()
     end
 end
 

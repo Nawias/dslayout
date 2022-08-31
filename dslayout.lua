@@ -5,16 +5,20 @@
 ---
 dslayout = {}
 dslayout.color = {r = 0.2, g = 0.2, b = 0.2, a = 1}
+dslayout.title = "3DS Demo"
 dslayout.bottomScreen = nil
 dslayout.blendMode = love.graphics.getBlendMode()
 function dslayout:init(config)
     dslayout.bottomScreen = love.graphics.newCanvas(320,240)
-    if(love.window.setTitle ~= nil) then
-        love.window.setTitle("3DS Demo")
-    end
-    love.window.setMode(400,480)
     if(config ~= nil and config.color ~= nil) then
         dslayout.color = config.color
+    end
+    love.window.setMode(400,480)
+    if(config ~= nil and config.title ~= nil) then
+        dslayout.title = config.title
+    end
+    if(love.window.setTitle ~= nil) then
+        love.window.setTitle(dslayout.title)
     end
 end
 function dslayout:draw(screen, topScreen, bottomScreen)
@@ -59,4 +63,3 @@ function dslayout:mousereleased(x,y,button,istouch,presses)
     if(button ~= 1) then return end
     if(love.touchreleased ~= nil) then love.touchreleased(0,x-40,y-240,0,0,1) end
 end
-
